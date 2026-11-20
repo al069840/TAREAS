@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
-const PHOTO_BUNNY = '/images/amigurumi-a.jpg';
-const PHOTO_FLOPPY = '/images/amigurumi-b.jpg';
+const PHOTO_BUNNY = `${import.meta.env.BASE_URL}images/amigurumi-a.jpg`;
+const PHOTO_FLOPPY = `${import.meta.env.BASE_URL}images/amigurumi-b.jpg`;
 
 const lessons = [
   {
