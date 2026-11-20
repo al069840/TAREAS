@@ -1,10 +1,11 @@
-name: Publicar Entre Hilos en GitHub Pages
+name: Publicar sitios en GitHub Pages
 
 on:
   push:
     branches: [main]
     paths:
       - 'entre-hilos-amigurumis/**'
+      - 'portafolio/**'
       - '.github/workflows/deploy-entre-hilos.yml'
   workflow_dispatch:
 
@@ -23,9 +24,6 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    defaults:
-      run:
-        working-directory: entre-hilos-amigurumis
     steps:
       - name: Descargar código
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -34,17 +32,32 @@ jobs:
         with:
           node-version: lts/*
           cache: npm
-          cache-dependency-path: entre-hilos-amigurumis/package-lock.json
-      - name: Instalar dependencias
+          cache-dependency-path: |
+            entre-hilos-amigurumis/package-lock.json
+            portafolio/package-lock.json
+      - name: Instalar dependencias de Entre Hilos
+        working-directory: entre-hilos-amigurumis
         run: npm ci
-      - name: Crear sitio
+      - name: Crear Entre Hilos
+        working-directory: entre-hilos-amigurumis
         run: npm run build -- --base /TAREAS/
+      - name: Instalar dependencias del portafolio
+        working-directory: portafolio
+        run: npm ci
+      - name: Crear portafolio
+        working-directory: portafolio
+        run: npm run build -- --base /TAREAS/portafolio/
+      - name: Reunir los dos sitios
+        run: |
+          mkdir -p _site/portafolio
+          cp -a entre-hilos-amigurumis/dist/. _site/
+          cp -a portafolio/dist/. _site/portafolio/
       - name: Preparar Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
       - name: Subir sitio
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
-          path: entre-hilos-amigurumis/dist
+          path: _site
       - name: Publicar en Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
